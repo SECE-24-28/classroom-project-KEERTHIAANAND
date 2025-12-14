@@ -1,0 +1,17 @@
+{
+    "name": "ecommerce-sports-server",
+    "version": "1.0.0",
+    "description": "Express server for ecommerce sports application",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js",
+        "dev": "node server.js",
+        "seed": "node seedData.js"
+    },
+    "dependencies": {
+        "cors": "^2.8.5",
+        "dotenv": "^17.2.3",
+        "express": "^4.18.2",
+        "mongoose": "^9.0.1"
+    }
+}
