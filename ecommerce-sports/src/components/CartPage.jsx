@@ -72,32 +72,73 @@ const CartPage = () => {
     const total = subtotal + shipping + tax;
 
     const handleCheckout = async () => {
+        // Check if user is logged in (check both storages)
+        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
         const isLoggedIn = sessionStorage.getItem("isLoggedIn");
-        if (isLoggedIn !== "true") {
+
+        if (!token && isLoggedIn !== "true") {
             navigate("/login");
             return;
         }
 
-        const orders = JSON.parse(localStorage.getItem("orders") || "[]");
-        const newOrder = {
-            id: Date.now(),
-            items: cart,
-            total: total,
-            date: new Date().toLocaleDateString(),
-            status: "Processing",
-        };
-        orders.push(newOrder);
-        localStorage.setItem("orders", JSON.stringify(orders));
-
-        // Clear cart via API
         try {
-            await fetch('http://localhost:3000/cart', {
-                method: 'DELETE',
+            // Prepare order items
+            const orderItems = cart.map(item => ({
+                productId: item.productId || item.product || item.id,
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                image: item.image
+            }));
+
+            // Place order via API
+            const response = await fetch('http://localhost:3000/api/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    items: orderItems,
+                    totalAmount: total,
+                    shippingAddress: {
+                        fullName: 'Customer',
+                        address: 'Default Address',
+                        city: 'City',
+                        postalCode: '000000',
+                        phone: '0000000000'
+                    },
+                    paymentMethod: 'Cash on Delivery'
+                })
             });
-            setCart([]);
-            navigate("/orders");
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Also save to localStorage for OrdersPage (backward compatibility)
+                const orders = JSON.parse(localStorage.getItem("orders") || "[]");
+                const newOrder = {
+                    id: data.order._id,
+                    items: cart,
+                    total: total,
+                    date: new Date().toLocaleDateString(),
+                    status: "Pending",
+                };
+                orders.push(newOrder);
+                localStorage.setItem("orders", JSON.stringify(orders));
+
+                // Clear cart via API
+                await fetch('http://localhost:3000/cart', {
+                    method: 'DELETE',
+                });
+                setCart([]);
+                navigate("/orders");
+            } else {
+                alert(data.message || 'Failed to place order');
+            }
         } catch (error) {
-            console.error('Error clearing cart:', error);
+            console.error('Error placing order:', error);
+            alert('Error placing order. Please try again.');
         }
     };
 
