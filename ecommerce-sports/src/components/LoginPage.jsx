@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+
+const API_URL = "http://localhost:3000/api";
 
 const LoginPage = () => {
     const [isLogin, setIsLogin] = useState(true);
@@ -7,44 +10,72 @@ const LoginPage = () => {
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    // Demo credentials
-    const demoUsers = {
-        "admin@gmail.com": { password: "admin123", role: "admin", name: "Admin User" },
-        "user@gmail.com": { password: "user123", role: "user", name: "John Doe" },
-    };
-
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
+        setLoading(true);
 
-        if (isLogin) {
-            const user = demoUsers[email];
-            if (user && user.password === password) {
-                sessionStorage.setItem("isLoggedIn", "true");
-                sessionStorage.setItem("role", user.role);
-                sessionStorage.setItem("userName", user.name);
-                sessionStorage.setItem("userEmail", email);
+        try {
+            if (isLogin) {
+                // Login request
+                const response = await axios.post(`${API_URL}/auth/login`, {
+                    email,
+                    password
+                });
 
-                if (user.role === "admin") {
-                    navigate("/admin");
-                } else {
-                    navigate("/");
+                if (response.data.success) {
+                    // Store token and user info
+                    localStorage.setItem("token", response.data.token);
+                    localStorage.setItem("isLoggedIn", "true");
+                    localStorage.setItem("role", response.data.user.role);
+                    localStorage.setItem("userName", response.data.user.name);
+                    localStorage.setItem("userEmail", response.data.user.email);
+                    localStorage.setItem("userId", response.data.user.id);
+
+                    // Redirect based on role
+                    if (response.data.user.role === "admin") {
+                        navigate("/admin");
+                    } else {
+                        navigate("/");
+                    }
                 }
             } else {
-                setError("Invalid email or password");
+                // Register request
+                if (!name) {
+                    setError("Please enter your name");
+                    setLoading(false);
+                    return;
+                }
+
+                const response = await axios.post(`${API_URL}/auth/register`, {
+                    name,
+                    email,
+                    password
+                });
+
+                if (response.data.success) {
+                    // Store token and user info
+                    localStorage.setItem("token", response.data.token);
+                    localStorage.setItem("isLoggedIn", "true");
+                    localStorage.setItem("role", response.data.user.role);
+                    localStorage.setItem("userName", response.data.user.name);
+                    localStorage.setItem("userEmail", response.data.user.email);
+                    localStorage.setItem("userId", response.data.user.id);
+
+                    navigate("/");
+                }
             }
-        } else {
-            if (email && password && name) {
-                sessionStorage.setItem("isLoggedIn", "true");
-                sessionStorage.setItem("role", "user");
-                sessionStorage.setItem("userName", name);
-                sessionStorage.setItem("userEmail", email);
-                navigate("/");
-            } else {
-                setError("Please fill in all fields");
-            }
+        } catch (err) {
+            console.error("Auth error:", err);
+            setError(
+                err.response?.data?.message ||
+                "An error occurred. Please try again."
+            );
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -124,6 +155,7 @@ const LoginPage = () => {
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition"
                                 placeholder="you@example.com"
+                                required
                             />
                         </div>
 
@@ -137,16 +169,40 @@ const LoginPage = () => {
                                 onChange={(e) => setPassword(e.target.value)}
                                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition"
                                 placeholder="••••••••"
+                                required
+                                minLength={6}
                             />
+                            {!isLogin && (
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Password must be at least 6 characters
+                                </p>
+                            )}
                         </div>
 
                         <button
                             type="submit"
-                            className="w-full bg-yellow-500 text-white py-4 rounded-lg font-bold text-lg hover:bg-yellow-600 transition"
+                            disabled={loading}
+                            className={`w-full py-4 rounded-lg font-bold text-lg transition ${loading
+                                    ? "bg-gray-400 cursor-not-allowed"
+                                    : "bg-yellow-500 hover:bg-yellow-600"
+                                } text-white`}
                         >
-                            {isLogin ? "Login" : "Create Account"}
+                            {loading
+                                ? "Please wait..."
+                                : isLogin
+                                    ? "Login"
+                                    : "Create Account"}
                         </button>
                     </form>
+
+                    {/* Demo credentials hint */}
+                    {isLogin && (
+                        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                            <p className="text-xs text-gray-500 text-center">
+                                New user? Click "Register" to create an account!
+                            </p>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
