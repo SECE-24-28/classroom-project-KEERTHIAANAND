@@ -7,6 +7,8 @@ const connectDB = require('./config/db');
 // Import routes
 const productRoutes = require('./routes/productRoutes');
 const cartRoutes = require('./routes/cartRoutes');
+const authRoutes = require('./routes/authRoutes');
+const orderRoutes = require('./routes/orderRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -36,6 +38,8 @@ app.get('/health', (req, res) => {
 
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/orders', orderRoutes);
 
 app.get('/products', async (req, res) => {
     try {
@@ -198,9 +202,6 @@ const startServer = async () => {
 
         // Start the server
         app.listen(PORT, () => {
-            console.log('\n========================================');
-            console.log(`🚀 Server is running on http://localhost:${PORT}`);
-            console.log('========================================');
             console.log('\nAvailable endpoints:');
             console.log('  Health Check: GET /health');
             console.log('');
@@ -209,13 +210,15 @@ const startServer = async () => {
             console.log('    Products: GET/PUT/DEL /api/products/:id');
             console.log('    Cart:     GET/POST    /api/cart');
             console.log('    Cart:     PUT/DEL     /api/cart/:productId');
+            console.log('    Auth:     POST        /api/auth/register');
+            console.log('    Auth:     POST        /api/auth/login');
+            console.log('    Auth:     GET         /api/auth/me (protected)');
             console.log('');
             console.log('  Legacy Routes (backward compatible):');
             console.log('    Products: GET/POST    /products');
             console.log('    Products: GET/DEL     /products/:id');
             console.log('    Cart:     GET/POST    /cart');
             console.log('    Cart:     PUT/DEL     /cart/:id');
-            console.log('========================================\n');
         });
     } catch (error) {
         console.error('Failed to start server:', error);
