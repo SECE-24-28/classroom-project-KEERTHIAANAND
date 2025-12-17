@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 const CartPage = () => {
     const [cart, setCart] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -16,7 +18,7 @@ const CartPage = () => {
 
     const fetchCart = async () => {
         try {
-            const response = await fetch('http://localhost:3000/cart');
+            const response = await fetch(`${API_URL}/cart`);
             const data = await response.json();
             setCart(data);
         } catch (error) {
@@ -34,7 +36,7 @@ const CartPage = () => {
         const newQuantity = item.quantity + change;
 
         try {
-            const response = await fetch(`http://localhost:3000/cart/${productId}`, {
+            const response = await fetch(`${API_URL}/cart/${productId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json; charset=UTF-8',
@@ -53,7 +55,7 @@ const CartPage = () => {
 
     const removeItem = async (productId) => {
         try {
-            const response = await fetch(`http://localhost:3000/cart/${productId}`, {
+            const response = await fetch(`${API_URL}/cart/${productId}`, {
                 method: 'DELETE',
             });
 
@@ -92,7 +94,7 @@ const CartPage = () => {
             }));
 
             // Place order via API
-            const response = await fetch('http://localhost:3000/api/orders', {
+            const response = await fetch(`${API_URL}/api/orders`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -128,7 +130,7 @@ const CartPage = () => {
                 localStorage.setItem("orders", JSON.stringify(orders));
 
                 // Clear cart via API
-                await fetch('http://localhost:3000/cart', {
+                await fetch(`${API_URL}/cart`, {
                     method: 'DELETE',
                 });
                 setCart([]);

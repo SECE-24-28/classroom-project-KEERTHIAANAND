@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 const ProductsPage = () => {
     const [products, setProducts] = useState([]);
     const [cartMessage, setCartMessage] = useState("");
@@ -11,7 +13,7 @@ const ProductsPage = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch('http://localhost:3000/products');
+                const response = await fetch(`${API_URL}/products`);
                 const data = await response.json();
                 setProducts(data);
             } catch (error) {
@@ -28,7 +30,7 @@ const ProductsPage = () => {
             // Use _id for MongoDB ObjectId or id for legacy support
             const productId = product._id || product.id;
 
-            const response = await fetch('http://localhost:3000/cart', {
+            const response = await fetch(`${API_URL}/cart`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json; charset=UTF-8',

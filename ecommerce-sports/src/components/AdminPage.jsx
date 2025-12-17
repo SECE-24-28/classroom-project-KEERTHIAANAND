@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Footer from "./Footer";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 const AdminPage = () => {
     const [activeTab, setActiveTab] = useState("products");
     const [products, setProducts] = useState([]);
@@ -36,7 +38,7 @@ const AdminPage = () => {
 
     const fetchProducts = async () => {
         try {
-            const response = await fetch('http://localhost:3000/products');
+            const response = await fetch(`${API_URL}/products`);
             const data = await response.json();
             setProducts(data);
         } catch (error) {
@@ -51,7 +53,7 @@ const AdminPage = () => {
         setOrdersLoading(true);
         try {
             const token = getToken();
-            const response = await fetch('http://localhost:3000/api/orders/admin/all', {
+            const response = await fetch(`${API_URL}/api/orders/admin/all`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -86,7 +88,7 @@ const AdminPage = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:3000/products', {
+            const response = await fetch(`${API_URL}/products`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json; charset=UTF-8',
@@ -122,7 +124,7 @@ const AdminPage = () => {
 
     const deleteProduct = async (productId) => {
         try {
-            const response = await fetch(`http://localhost:3000/products/${productId}`, {
+            const response = await fetch(`${API_URL}/products/${productId}`, {
                 method: 'DELETE',
             });
 
@@ -143,7 +145,7 @@ const AdminPage = () => {
     const updateOrderStatus = async (orderId, newStatus) => {
         try {
             const token = getToken();
-            const response = await fetch(`http://localhost:3000/api/orders/${orderId}/status`, {
+            const response = await fetch(`${API_URL}/api/orders/${orderId}/status`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -243,8 +245,8 @@ const AdminPage = () => {
                     <button
                         onClick={() => setActiveTab("products")}
                         className={`px-6 py-3 font-semibold text-lg transition-all ${activeTab === "products"
-                                ? "text-yellow-500 border-b-4 border-yellow-500"
-                                : "text-gray-500 hover:text-gray-700"
+                            ? "text-yellow-500 border-b-4 border-yellow-500"
+                            : "text-gray-500 hover:text-gray-700"
                             }`}
                     >
                         <i className="ri-box-3-line mr-2"></i>
@@ -253,8 +255,8 @@ const AdminPage = () => {
                     <button
                         onClick={() => setActiveTab("orders")}
                         className={`px-6 py-3 font-semibold text-lg transition-all ${activeTab === "orders"
-                                ? "text-yellow-500 border-b-4 border-yellow-500"
-                                : "text-gray-500 hover:text-gray-700"
+                            ? "text-yellow-500 border-b-4 border-yellow-500"
+                            : "text-gray-500 hover:text-gray-700"
                             }`}
                     >
                         <i className="ri-file-list-3-line mr-2"></i>

@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 const OrdersPage = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -20,7 +22,7 @@ const OrdersPage = () => {
                 setLoading(false);
                 return;
             }
-            const response = await fetch('http://localhost:3000/api/orders/my-orders', {
+            const response = await fetch(`${API_URL}/api/orders/my-orders`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -113,8 +115,8 @@ const OrdersPage = () => {
                                                 key={order._id || order.id}
                                                 onClick={() => setSelectedOrder(order._id || order.id)}
                                                 className={`p-4 rounded-lg cursor-pointer transition-all ${isActive
-                                                        ? 'bg-yellow-50 border-2 border-yellow-400'
-                                                        : 'bg-gray-50 hover:bg-gray-100 border-2 border-transparent'
+                                                    ? 'bg-yellow-50 border-2 border-yellow-400'
+                                                    : 'bg-gray-50 hover:bg-gray-100 border-2 border-transparent'
                                                     }`}
                                             >
                                                 <div className="flex items-center gap-3">
@@ -186,8 +188,8 @@ const OrdersPage = () => {
                                                         <div key={step} className="flex items-center flex-1">
                                                             <div className="flex flex-col items-center">
                                                                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${done
-                                                                        ? 'bg-yellow-500 text-white'
-                                                                        : 'bg-gray-200 text-gray-400'
+                                                                    ? 'bg-yellow-500 text-white'
+                                                                    : 'bg-gray-200 text-gray-400'
                                                                     } ${active ? 'ring-4 ring-yellow-200' : ''}`}>
                                                                     {done && i < current ? '✓' : i + 1}
                                                                 </div>

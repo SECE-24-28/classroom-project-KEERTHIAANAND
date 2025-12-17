@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const API_URL = "http://localhost:3000/api";
+const API_URL = `${import.meta.env.VITE_API_URL || "http://localhost:3000"}/api`;
 
 const LoginPage = () => {
     const [isLogin, setIsLogin] = useState(true);
@@ -183,8 +183,8 @@ const LoginPage = () => {
                             type="submit"
                             disabled={loading}
                             className={`w-full py-4 rounded-lg font-bold text-lg transition ${loading
-                                    ? "bg-gray-400 cursor-not-allowed"
-                                    : "bg-yellow-500 hover:bg-yellow-600"
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-yellow-500 hover:bg-yellow-600"
                                 } text-white`}
                         >
                             {loading
