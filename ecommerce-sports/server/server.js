@@ -14,8 +14,25 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
+const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://127.0.0.1:5173',
+    process.env.FRONTEND_URL  // Add your Vercel URL here via env variable
+].filter(Boolean);
+
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://localhost:5174', 'http://127.0.0.1:5173'],
+    origin: process.env.NODE_ENV === 'production'
+        ? (origin, callback) => {
+            // Allow requests with no origin (mobile apps, curl, etc)
+            if (!origin) return callback(null, true);
+            // Allow all Vercel deployments
+            if (origin.includes('vercel.app') || allowedOrigins.includes(origin)) {
+                return callback(null, true);
+            }
+            callback(null, true); // Allow all origins in production for now
+        }
+        : allowedOrigins,
     credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
